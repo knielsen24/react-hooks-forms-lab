@@ -4,29 +4,45 @@ import Filter from "./Filter";
 import Item from "./Item";
 
 function ShoppingList({ items }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [searchBar, setSearchBar] = useState("")
+	const [submittedData, setSubmittedData] = useState(items)
 
-  function handleCategoryChange(event) {
-    setSelectedCategory(event.target.value);
-  }
+	const onItemFormSubmit = (newItem) => {
+		const newItemArray = [...items, newItem]
+		setSubmittedData(newItemArray)
+	}
 
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
+	function handleCategoryChange(event) {
+		setSelectedCategory(event.target.value);
+	}
 
-    return item.category === selectedCategory;
-  });
+	function onSearchChange(event) {
+		setSearchBar(event.target.value.toLowerCase())
+	}
 
-  return (
-    <div className="ShoppingList">
-      <ItemForm />
-      <Filter onCategoryChange={handleCategoryChange} />
-      <ul className="Items">
-        {itemsToDisplay.map((item) => (
-          <Item key={item.id} name={item.name} category={item.category} />
-        ))}
-      </ul>
-    </div>
-  );
+	const itemsToDisplay = submittedData.filter((item) => {
+		const searchName = item.name.toLowerCase().includes(searchBar)
+		if (selectedCategory === "All" && searchBar === "") return true
+		else if (selectedCategory === "All" && searchBar === searchBar) return searchName
+		else if (item.category === selectedCategory) return searchName
+	});
+
+	return (
+		<div className="ShoppingList">
+			<ItemForm onItemFormSubmit={onItemFormSubmit} />
+			<Filter
+				onCategoryChange={handleCategoryChange}
+				onSearchChange={onSearchChange}
+				search={searchBar}
+			/>
+			<ul className="Items">
+				{itemsToDisplay.map((item) => (
+					<Item key={item.id} name={item.name} category={item.category} />
+				))}
+			</ul>
+		</div>
+	);
 }
 
-export default ShoppingList;
+export default ShoppingList
